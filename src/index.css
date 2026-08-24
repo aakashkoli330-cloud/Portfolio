@@ -1,0 +1,245 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-body: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  --color-paper: #ffffff;
+  --color-surface: #eef2fb;
+  --color-cream: #182a66;
+  --color-muted: #5d6ba6;
+  --color-grape: #4169e1;
+  --color-flare: #2f51ce;
+  --color-glow: #7186ef;
+  --color-honey: #96aaf6;
+  --color-ink: #12205c;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-paper font-body text-cream antialiased;
+}
+
+::selection {
+  background: rgb(65 105 225 / 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #bcc8f2;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes sf-tick {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.6);
+  }
+  55% {
+    transform: scaleY(0.6);
+  }
+}
+@keyframes ticker-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes ticker-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes tape-in {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- component classes (layered so utilities can override) ---------- */
+@layer components {
+  .text-gradient {
+    @apply bg-gradient-to-r from-grape to-flare;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(65 105 225 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(65 105 225 / 0.07) 1px, transparent 1px);
+    background-size: 54px 54px;
+  }
+
+  .mask-fade {
+    mask-image: radial-gradient(
+      ellipse 75% 65% at 50% 40%,
+      black 30%,
+      transparent 78%
+    );
+  }
+
+  /* split-flap board */
+  .sf-tile {
+    position: relative;
+    flex: none;
+    /* shrink tiles on small screens so long rows never overflow the viewport;
+       --len (tile count) is set inline by SplitFlap's TileRow */
+    width: min(
+      44px,
+      max(16px, 3vw),
+      calc((100vw - 116px - (var(--len, 8) - 1) * 4px) / var(--len, 8))
+    );
+    height: min(
+      62px,
+      max(23px, 4.4vw),
+      calc(((100vw - 116px - (var(--len, 8) - 1) * 4px) / var(--len, 8)) * 1.42)
+    );
+  }
+  .sf-half {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%;
+    overflow: hidden;
+  }
+  .sf-top {
+    top: 0;
+    border-radius: 5px 5px 0 0;
+    background: linear-gradient(180deg, #5078ec, #3d62de);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22);
+  }
+  .sf-bot {
+    bottom: 0;
+    border-radius: 0 0 5px 5px;
+    background: linear-gradient(180deg, #3557cf, #2c47ae);
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.28);
+  }
+  .sf-glyph {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 200%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: min(
+      32px,
+      max(11px, 2.6vw),
+      calc(((100vw - 116px - (var(--len, 8) - 1) * 4px) / var(--len, 8)) * 0.72)
+    );
+    line-height: 1;
+    color: #f6f9ff;
+  }
+  .sf-top .sf-glyph {
+    top: 0;
+  }
+  .sf-bot .sf-glyph {
+    top: -100%;
+  }
+  .sf-seam {
+    position: absolute;
+    top: calc(50% - 1px);
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgb(18 32 92 / 0.85);
+    z-index: 3;
+  }
+
+  /* tickers */
+  .ticker-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 8%,
+      black 92%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 8%,
+      black 92%,
+      transparent
+    );
+  }
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.2px rgb(65 105 225 / 0.72);
+  }
+  .text-outline-thin {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(65 105 225 / 0.3);
+  }
+
+  /* editorial extras */
+  .drop-cap::first-letter {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    float: left;
+    font-size: 3.1em;
+    line-height: 0.82;
+    padding-right: 0.28rem;
+    padding-top: 0.18rem;
+    color: var(--color-grape);
+  }
+}
+
+/* ---------- animation utilities (layered with Tailwind utilities) ---------- */
+@layer utilities {
+  .sf-tick {
+    animation: sf-tick 0.14s ease-in-out;
+  }
+  .animate-ticker-l {
+    animation: ticker-left var(--ticker-duration, 30s) linear infinite;
+  }
+  .animate-ticker-r {
+    animation: ticker-right var(--ticker-duration, 34s) linear infinite;
+  }
+  .animate-tape {
+    animation: tape-in 0.4s cubic-bezier(0.2, 1.4, 0.4, 1);
+    transform-origin: top;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sf-tick,
+    .animate-ticker-l,
+    .animate-ticker-r,
+    .animate-tape {
+      animation: none !important;
+    }
+  }
+}
