@@ -92,6 +92,7 @@ export default function Projects() {
     v: 0,
     maxX: 0,
     dragging: false,
+    captured: false,
     moved: 0,
     lastX: 0,
     lastT: 0,
@@ -172,14 +173,18 @@ export default function Projects() {
     const down = (e) => {
       s.dragging = true
       s.moved = 0
+      s.captured = false
       s.lastX = e.clientX
       s.lastT = performance.now()
       s.v = 0
-      gal.setPointerCapture(e.pointerId)
       gal.classList.add('cursor-grabbing')
     }
     const move = (e) => {
       if (!s.dragging) return
+      if (!s.captured) {
+        s.captured = true
+        gal.setPointerCapture(e.pointerId)
+      }
       const dx = e.clientX - s.lastX
       s.lastX = e.clientX
       const dt = Math.max(1, performance.now() - s.lastT)
@@ -189,10 +194,18 @@ export default function Projects() {
       s.x = Math.max(-60, Math.min(s.maxX + 60, s.x - dx))
       paint()
     }
-    const up = () => {
+    const up = (e) => {
       if (!s.dragging) return
       s.dragging = false
       gal.classList.remove('cursor-grabbing')
+      if (s.captured) {
+        try {
+          gal.releasePointerCapture(e.pointerId)
+        } catch {
+          /* pointer already released */
+        }
+        s.captured = false
+      }
       kick()
     }
     const wheel = (e) => {
