@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSiteSettings } from '../../hooks/useContent.js'
 import { saveSettings } from '../../lib/adminApi.js'
-import { Panel, Btn, Field, TextInput, TextArea, Spinner } from './ui.jsx'
+import { Panel, Btn, Field, TextInput, TextArea, Spinner, ImageField } from './ui.jsx'
 function toText(arr) {
   return Array.isArray(arr) ? arr.join('\n') : ''
 }
@@ -134,16 +134,13 @@ export default function SettingsEditor() {
 
       <Panel title="Portrait & Resume">
         <div className="space-y-5">
-          <Field
-            label="Portrait image URL"
-            hint="Leave empty to keep the monogram card. Square images look best."
-          >
-            <TextInput
-              value={form.portraitUrl}
-              onChange={set('portraitUrl')}
-              placeholder="https://i.imgur.com/....jpg"
-            />
-          </Field>
+          <ImageField
+            label="Portrait image"
+            value={form.portraitUrl}
+            folder="portraits"
+            hint="Leave empty to keep the monogram card. Square images look best. Uploaded images are stored in Firebase Storage."
+            onChange={(url) => setForm((f) => ({ ...f, portraitUrl: url }))}
+          />
           <Field label="Resume URL" hint="Link to a hosted PDF, or /resume.pdf in this repo">
             <TextInput value={form.resumeUrl} onChange={set('resumeUrl')} />
           </Field>

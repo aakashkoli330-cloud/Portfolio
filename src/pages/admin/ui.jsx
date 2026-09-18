@@ -1,5 +1,7 @@
+import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { cn } from '../../lib/cn.js'
+import { uploadImage } from '../../lib/storageApi.js'
 
 export const inputCls =
   'w-full rounded-xl border border-ink/10 bg-ink/[0.04] px-3.5 py-2.5 text-sm text-cream placeholder:text-muted/50 outline-none transition focus:border-grape/70 focus:ring-2 focus:ring-grape/25'
@@ -103,6 +105,138 @@ export function Modal({ open, title, onClose, children }) {
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+export function ImageField({
+  label,
+  value,
+  onChange,
+  folder = 'uploads',
+  hint,
+}) {
+  const inputRef = useRef(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleFile(file) {
+    if (!file) return
+    setUploading(true)
+    setError('')
+    try {
+      const url = await uploadImage(file, folder)
+      onChange(url)
+    } catch (err) {
+      console.error('[upload]', err)
+      setError(err?.message ?? 'Upload failed. Check Firebase Storage rules.')
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ''
+    }
+  }
+
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted">
+        {label}
+      </span>
+      <div
+        onDragOver={(e) => {
+          e.preventDefault()
+        }}
+        onDrop={(e) => {
+          e.preventDefault()
+          handleFile(e.dataTransfer.files?.[0])
+        }}
+        className={cn(
+          'relative rounded-2xl border-2 border-dashed border-ink/15 bg-ink/[0.03] p-4 transition-colors hover:border-grape/60 hover:bg-grape/5',
+          uploading && 'pointer-events-none opacity-60',
+        )}
+      >
+        {value ? (
+          <div className="flex items-center gap-4">
+            <img
+              src={value}
+              alt="Preview"
+              className="h-24 w-24 flex-none rounded-xl border border-ink/10 object-cover"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-muted">{value}</p>
+              <div className="mt-2.5 flex gap-2">
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    inputRef.current?.click()
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      inputRef.current?.click()
+                    }
+                  }}
+                  className="cursor-pointer rounded-full border border-grape/50 px-3 py-1 text-xs font-semibold text-grape transition-colors hover:bg-grape/10"
+                >
+                  Replace
+                </span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    onChange('')
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      onChange('')
+                    }
+                  }}
+                  className="cursor-pointer rounded-full border border-flare/40 px-3 py-1 text-xs font-semibold text-flare transition-colors hover:bg-flare/10"
+                >
+                  Remove
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid min-h-24 place-items-center text-center">
+            {uploading ? (
+              <div className="flex items-center gap-3">
+                <Spinner />
+                <span className="text-sm text-muted">Uploading...</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  inputRef.current?.click()
+                }}
+                className="text-sm text-muted transition-colors hover:text-grape"
+              >
+                <span className="mb-1 block text-2xl">+</span>
+                Upload image or drop it here
+              </button>
+            )}
+          </div>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+      </div>
+      {error && (
+        <span className="mt-1.5 block text-xs text-flare">{error}</span>
+      )}
+      {hint && !error && (
+        <span className="mt-1 block text-xs text-muted/70">{hint}</span>
+      )}
+    </label>
   )
 }
 

@@ -3,7 +3,7 @@ import { useCollection } from '../../hooks/useContent.js'
 import { projects as fallbackProjects } from '../../lib/mockData.js'
 import { createItem, updateItem, deleteItem, reorderItem } from '../../lib/adminApi.js'
 import { sorted } from '../../lib/content.js'
-import { Panel, Btn, Field, TextInput, TextArea, Select, Modal, guard } from './ui.jsx'
+import { Panel, Btn, Field, TextInput, TextArea, Select, Modal, guard, ImageField } from './ui.jsx'
 
 const GRADIENTS = [
   { label: 'Grape → Glow', value: 'from-grape/70 via-grape/30 to-glow/50' },
@@ -69,16 +69,13 @@ function ProjectForm({ initial, onSave, onClose, saving }) {
           <TextInput value={form.live} onChange={set('live')} />
         </Field>
       </div>
-      <Field
-        label="Cover image URL"
-        hint="Optional — overrides the gradient cover"
-      >
-        <TextInput
-          value={form.imageUrl ?? ''}
-          onChange={set('imageUrl')}
-          placeholder="https://..."
-        />
-      </Field>
+      <ImageField
+        label="Cover image"
+        value={form.imageUrl ?? ''}
+        folder="project-covers"
+        hint="Uploaded images are stored in Firebase Storage and override the gradient cover."
+        onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+      />
       {!form.imageUrl && (
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Cover gradient">

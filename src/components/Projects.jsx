@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSiteData } from '../context/SiteData.jsx'
 import { sorted } from '../lib/content.js'
 
 function ProjectCard({ project: p, index }) {
+  const [imgFailed, setImgFailed] = useState(false)
   const hasLive = Boolean(p.live && p.live !== '#')
   const hasGithub = Boolean(p.github && p.github !== '#')
   const Tag = hasLive ? 'a' : 'div'
@@ -19,12 +20,13 @@ function ProjectCard({ project: p, index }) {
       className="group relative block w-[min(78vw,400px)] flex-none overflow-hidden rounded-md border-2 border-ink bg-white text-left shadow-[10px_10px_0_var(--color-grape)] transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[14px_14px_0_var(--color-grape)]"
     >
       <div className="bg-grid relative h-52 overflow-hidden bg-surface">
-        {p.imageUrl ? (
+        {p.imageUrl && !imgFailed ? (
           <img
             src={p.imageUrl}
             alt={p.title}
             draggable={false}
             loading="lazy"
+            onError={() => setImgFailed(true)}
             className="h-full w-full object-cover grayscale-[0.25]"
           />
         ) : (
