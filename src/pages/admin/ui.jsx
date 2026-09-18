@@ -128,7 +128,7 @@ export function ImageField({
       onChange(url)
     } catch (err) {
       console.error('[upload]', err)
-      setError(err?.message ?? 'Upload failed. Check Firebase Storage rules.')
+      setError(err?.message ?? 'Upload failed. Try again with a different image.')
     } finally {
       setUploading(false)
       if (inputRef.current) inputRef.current.value = ''
